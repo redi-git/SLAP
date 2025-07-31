@@ -1,0 +1,133 @@
+extensions: # whitelisted extensions
+  - bat
+  - cmd
+  - hta
+  - ini
+  - json
+  - ps1
+  - reg
+  #- txt # yields a lot of false positives
+  - vbs
+  #- xml # usually yields a lot of false positives
+  - yml
+  - yaml
+  - config
+  - cfg
+  - sh
+  - conf
+  - resx
+
+filenames: # filenames of the datalib. All DataLib files end with .INI
+  report:
+    - name: UltraVNC.ini.INI 
+      description:  exposes vnc pass (cross verf.)
+    - name: tomcat-users.xml.INI
+    - name: server.xml.INI
+    - name: security.xml.INI
+    - name: configuration.php.INI
+    - name: unattend.txt.INI
+    - name: unattended.xml.INI  
+
+  ignore: # ignore filenames e.g. translation files, license files, eula etc.
+    - name: DE.xml.INI
+    - name: PT.xml.INI
+    - name: lv.txt.INI
+    - name: pt.txt.INI
+    - name: IT.xml.INI
+    - name: NL.xml.INI
+    - name: ES.xml.INI
+    - name: FR.xml.INI
+    - name: it.txt.INI
+    - name: Eula.txt.INI
+    - name: license.txt.INI
+    - name: History.txt.INI
+    - name: Languages.ini.INI
+
+matches: # Ignore results where the regex match equals to
+  ignore:
+    - "net user Administrator /active:yes</Path>"
+    
+patterns: # regex patterns to match secrets
+  - 'AKIA[0-9A-Z]{16}' # AWS Access Key ID
+  - 'aws(.{0,20})?[\"][0-9a-zA-Z\/+]{40}[\"]' # AWS Secret Access Key
+  - 'AIza[0-9A-Za-z\\-_]{35}' # Google API Key
+  - 'AAAA[A-Za-z0-9_-]{7}:[A-Za-z0-9_-]{140}' # Firebase Secret
+  - 'ghp_[0-9a-zA-Z]{36}' # GitHub Token
+  - 'glpat-[0-9a-zA-Z-_]{20}' # GitLab Token
+  - 'xox[baprs]-([0-9a-zA-Z]{10,48})?' # Slack Token
+  - 'sk_live_[0-9a-zA-Z]{24}' # Stripe Secret Key
+  - 'pk_live_[0-9a-zA-Z]{24}' # Stripe Publishable Key
+  - 'SK[0-9a-fA-F]{32}' # Twilio API Key
+  - 'SG\.[\w\d\-_]{22}\.[\w\d\-_]{43}' # SendGrid API Key
+  - 'key-[0-9a-zA-Z]{32}' # Mailgun API Key
+  - 'shpat_[0-9a-fA-F]{32}' # Shopify Access Token
+  - 'EAACEdEose0cBA[0-9A-Za-z]+' # Facebook Access Token
+  - '[hH]eroku[\"][0-9a-f]{32}[\"]' # Heroku API Key
+  - 'dop_v1_[a-z0-9]{64}' # DigitalOcean Token
+  - '0/[0-9a-z]{32}' # Asana Personal Access Token
+  - 'lin_api_[a-zA-Z0-9]{40}' # Linear API Key
+  - '\d{9}:[a-zA-Z0-9_-]{35}' # Telegram Bot Token
+  - '(?i)client_secret[''"\s:=]+[a-zA-Z0-9\-_.~]{10,100}' # OAuth Client Secret
+  - '(?i)client_id[''"\s:=]+[a-zA-Z0-9\-_.~]{10,100}' # OAuth Client ID
+  - 'eyJ[A-Za-z0-9-_=]+?\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*' # JWT Token
+  - '(?i)(passwor[dt]|passphrase|pwd)[\s]*[=]''
+  - (?i)(api[_-]?key)['"\s:=]+[a-zA-Z0-9\-_.]{8,100} # API Key in Variable
+  - (?i)(secret)['"\s:=]+[a-zA-Z0-9\-_.]{8,100} # Secret in Variable
+  - '(?i)azure(.{0,20})?client.secret(.{0,20})?[''\"][a-zA-Z0-9._%+-]{32,}[''\"]' # Azure Client Secret
+  - 'https:\/\/[a-z]+\.webhook\.office\.com\/webhookb2\/[a-zA-Z0-9@\-]+\/.*' # Microsoft Teams Webhook
+  - 'Bearer\s+[a-zA-Z0-9\-._~+/]+=*' # Authorization Bear
+  - 'mongodb(\+srv)?:\/\/[^\s'']+' # MongoDB Connection URI
+  - 'postgres(?:ql)?:\/\/[^\s'']+' # PostgreSQL URI
+  - 'mysql:\/\/[^\s'']+' # MySQL URI
+  - 'mariadb:\/\/[^\s'']+' # MariaDB URI
+  - 'jdbc:\w+:\/\/[^\s'']+' # JDBC URL
+  - '[a-z0-9-]+\.rds\.amazonaws\.com' # AWS RDS Hostname
+  - 'googleapis\.com\/sql\/v1beta4\/projects\/' # Cloud SQL URI (GCP)
+  - '(?i)secretName:\s*[''"]?[a-z0-9\-]+[''"]?' # Kubernetes Secret Name
+  - 'secrets\.[A-Z0-9_]+' # Kubernetes Secrets'
+  - 'ghp_[a-zA-Z0-9]{36}' # GitHub Personal Access Token
+  - 'bitbucket(.{0,20})?key[''"\s:=]+[a-zA-Z0-9]{20,}' # Bitbucket OAuth Key
+  - 'bitbucket(.{0,20})?secret[''"\s:=]+[a-zA-Z0-9]{20,}' # Bitbucket OAuth Secret
+  - 'glrt-[a-zA-Z0-9_-]{20}' # GitLab Runner Token
+  - '(?i)(apikey|api_key|secret)[''"\s:=]+[a-zA-Z0-9\-._]{8,}' # Generic API Key
+  - '(?i)authorization:\s*Bearer\s+[a-zA-Z0-9\-._~+/]+=*' # Authorization Bearer Token
+  - '((my|o|i)sql|sqlcmd)[^\.][-/]p ?[^\s]{3,}'
+  - '\b(sqlplus|conn(ect)?)\s+\w+/[^\s]+'
+  - 'p(scp|sftp|uttytel|link).*-pw'
+  - '\s?ftp\s+.*-[sup]'
+  - '\bnet(\.exe)?\s+use.*/user:[^\s]+'
+  - '(s?ftps?|https?|scp)://[^ ]*@'
+  - '\bnet(\.exe)?\s+user.*\/add'
+  - '\bnet(\.exe)?\s+user\s+\w+\s+[^\s]{8,}'
+  - 'Data Source='
+  - '\b(ssh|scp|sftp)\b.*-i'
+  - 'psexec.*-p'
+  - '\breg\s+add\s.*(?i:Password|Pwd|Pass|Credential|Secret).*'
+  - '(CREATE|ALTER) USER.*IDENTIFIED BY '
+  - 'SCHTASKS.*((/RP|/P)\s+).*'
+  - 'rftscmd.*-s.*'
+  - '(mysql|mssql|pg|db2|odbc|ldap|ssh2)_connect\(\s?[^\s]+\s?,\s?[^\s]+\s?,\s?[^\s]+'
+  - '(execute|exec)\s+sp_addlogin\s?[^\s]+'
+  - 'login.*IDENTIFIED BY '
+  - 'PuTTY-User-Key-File'
+  - 'ConvertTo-SecureString '
+  - 'bearer\s*[a-zA-Z0-9_\-\.=:_\+\/]+'
+  - '[a-zA-Z0-9_-]*:[a-zA-Z0-9_\-]+@github\.com*'
+  - '(?i)clientSecret'
+  - 'client\-secret'
+  - 'client\_secret'
+  - 'SecretAccessKey'
+  - 'bucketName'
+  - 'dbpass'
+  - 'db_pas'
+  - 'DB_PASSWORD'
+  - 'http[s]?:\/\/[a-z0-9A-Z]{3,}\.blob\.core\.windows\.net\/[a-z0-9A-Z]{1,}.*sv=[0-9]{4}-[0-9]{2}-[0-9]{2}&st=[0-9]{4}-[0-9]{2}-[0-9]{2}T.*sip=.*spr.*sig=[a-zA-Z0-9%*=]{1,}'
+  - 'DefaultEndpointsProtocol=https;BlobEndpoint=http[s]?:\/\/[a-z0-9A-Z]{3,}\.blob\.core\.windows\.net\/;AccountName=[a-z-A-Z]{1,};AccountKey=.*'
+  - 'Connect-AzAccount.*(ServicePrincipal|CertificateThumbprint).*'
+  - 'az login --service-principal'
+  - 'Connect-MsolService.*-(Ad|Ms)GraphAccessToken.*'
+  - 'Connect-ExchangeOnline.*(-CertificateThumbprint|-Certificate)'
+
+filehashes: # hashes of files (names in fileLib)
+  ignore:
+    - '0B7E73D575A575255D23945DD22440CFA149428F604107F5D11FB8B87F919B9C' # example
