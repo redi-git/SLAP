@@ -173,10 +173,10 @@ class SMBHandler:
                     output = data.decode(chardet_result["encoding"])
                 else:
                     output = str(data)
-                    logger.warning(f"Done reading {fullPath}")
+                    logger.debug(f"Done reading {fullPath}")
 
                     return output
-                logger.info(f"Done reading {fullPath}")
+                logger.debug(f"Done reading {fullPath}")
                 return output
             except nmb.NetBIOSTimeout as e:
                 logger.info(
