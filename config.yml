@@ -70,7 +70,7 @@ patterns: # regex patterns to match secrets
   - '(?i)client_secret[''"\s:=]+[a-zA-Z0-9\-_.~]{10,100}' # OAuth Client Secret
   - '(?i)client_id[''"\s:=]+[a-zA-Z0-9\-_.~]{10,100}' # OAuth Client ID
   - 'eyJ[A-Za-z0-9-_=]+?\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*' # JWT Token
-  - '(?i)(passwor[dt]|passphrase|pwd)[\s]*[=]''
+  - '(?i)(passwor[dt]|passphrase|pwd)[\s]*[=]'
   - (?i)(api[_-]?key)['"\s:=]+[a-zA-Z0-9\-_.]{8,100} # API Key in Variable
   - (?i)(secret)['"\s:=]+[a-zA-Z0-9\-_.]{8,100} # Secret in Variable
   - '(?i)azure(.{0,20})?client.secret(.{0,20})?[''\"][a-zA-Z0-9._%+-]{32,}[''\"]' # Azure Client Secret
