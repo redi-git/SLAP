@@ -1,5 +1,5 @@
 ![SLAP Logo](img/slap_logo_600.jpeg)
-# SLAP (Secret Locator and Package Analyzer)
+# SLAP (Secret Locator and Package-Analyzer)
 
 Inspired by the great tool [CMLoot](https://github.com/1njected/CMLoot) by 1njected/Tomas Rzepka
 
