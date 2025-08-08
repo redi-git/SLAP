@@ -17,6 +17,7 @@ def save_results_to_json(all_results, output_file):
             with open(output_file, "w") as f:
                 all_results_dict = [pkgLibResult.to_dict() for pkgLibResult in all_results]
                 json.dump(all_results.to_dict(), f, indent=4)
+        print(f"Results saved to {output_file}")
     except Exception as e:
         logger.error(
             f"save_results_to_json exception: {e} type: {type(e).__name__}",
