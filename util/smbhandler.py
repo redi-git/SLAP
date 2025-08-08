@@ -173,10 +173,10 @@ class SMBHandler:
                     output = data.decode(chardet_result["encoding"])
                 else:
                     output = str(data)
-                    logger.debug(f"Done reading {fullPath}")
+                    #logger.debug(f"Done reading {fullPath}")
 
                     return output
-                logger.debug(f"Done reading {fullPath}")
+                #logger.debug(f"Done reading {fullPath}")
                 return output
             except nmb.NetBIOSTimeout as e:
                 logger.info(
@@ -254,7 +254,8 @@ class SMBHandler:
         depth = so the recursion knows how deep it is
         depthLimit = stop when this depth is reached starting from the basepath
         """
-        if depth == 0:
+
+        if depth == 1:
             logger.debug(f"listing {path}")
             depth += 1
         ls = []
@@ -270,7 +271,6 @@ class SMBHandler:
                 ls.append(f"{file}")
             for folder in folderList:
                 ls.extend(SMBHandler.list_directory_recursive(f"{folder}", config, smbClient, depth))
-
         except Exception as e:
             logger.warning(f"list_directory_recursive Exception: {e}")
         return ls
