@@ -93,7 +93,7 @@ class SMBHandler:
                 attempt = attempt + 1
                 time.sleep(attempt * 2)
 
-    def list_folder(self, path):
+    def list_folder(self, path, returnAccessDenied=False):
         """
         returns all files and folders in path
         """
@@ -139,6 +139,8 @@ class SMBHandler:
                     logger.warning(
                         f"Access Denied while listing folder {path}. Skipping. Error: {e}"
                     )
+                    if returnAccessDenied:
+                        return folderList, fileList, "Access Denied"
                     return folderList, fileList
                 else:
                     logger.warning(
@@ -148,6 +150,8 @@ class SMBHandler:
                     time.sleep(attempt * 1)
                     if e is ConnectionError:
                         self.reauthenticate_impacket()
+        if returnAccessDenied:
+            return folderList, fileList, None
         return folderList, fileList
 
     def read_file(self, path) -> str | None:
