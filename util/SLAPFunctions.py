@@ -349,12 +349,14 @@ def parse_dataLib(dataLib, pkgLib, config, smbClient):
     try:
         fileList = SMBHandler.list_directory_recursive(dataLib.path, config, smbClient)
         if len(fileList) == 0:
-            logger.error(f"{dataLib.name} does not exist or access denied: {dataLib.path}")
-            try:
-                with open(f"denied_datalibs_{smbClient.address}.txt", "a") as f:
-                    f.write(f"{dataLib.name}\n")
-            except Exception as ex:
-                logger.debug(f"Error writing denied dataLib to file: {ex}", exc_info=True)
+            folderList, fileList, errorMsg = smbClient.list_folder(dataLib.path,returnAccessDenied=True)
+            if errorMsg == "Access Denied":
+                logger.error(f"{dataLib.name} does not exist or access denied: {dataLib.path}")
+                try:
+                    with open(f"denied_datalibs_{smbClient.address}.txt", "a") as f:
+                        f.write(f"{dataLib.name}\n")
+                except Exception as ex:
+                    logger.debug(f"Error writing denied dataLib to file: {ex}", exc_info=True)
         if config.get("inventory"):
             try:
                 with open(config.get("inventory_file"), "a") as f:
@@ -579,57 +581,3 @@ def worker(file_queue, progress_queue, report_queue, options, config):
         file_queue.task_done()
     smbClientThread.smbClient.close()
 
-def read_denied_dataLibFiles(smbClient):
-    """
-    gathers all denied dataLibs from the denied file and returns them as a list
-    """
-    denied_dataLibs = []
-    try:
-        with open(f"denied_datalibs_{smbClient.address}.txt", "r") as f:
-            for line in f:
-                denied_dataLibs.append(line.strip())
-    except FileNotFoundError:
-        logger.error(f"denied_datalibs_{smbClient.address}.txt not found. (must be in pwd)")
-        exit(1)
-    return denied_dataLibs
-
-def parse_fileLib(options,config):
-    """
-    parses the fileLib and checks if a reference to a denied_dataLib exists
-    """
-    smbClient = SMBHandler()
-    smbClient.authenticate_impacket(
-        target=options.target,
-        dc_ip=options.dc_ip,
-        hashes=options.hashes,
-        target_ip=options.target_ip
-    )
-    denied_dataLibs = read_denied_dataLibFiles(smbClient)
-    fileList = SMBHandler.list_directory_recursive(f"\\\\{smbClient.target_ip}\\SCCMContentLib$\\fileLib", config ,smbClient)
-
-    fileLib_results = []
-    for filePath in fileList:
-        if filePath.split(".")[-1] != "INI":
-            logger.debug(f"Skipping {filePath} because it is not an INI file")
-            continue
-
-        content = smbClient.read_file(filePath).split("\r\n")
-
-        for line in content:
-            if "=" in line: # dataLibs are always in the format dataLibName=
-                dataLibName = line.split("=")[0].strip()
-                if dataLibName in denied_dataLibs:
-                    filePath = filePath[:-4]
-                    filename = filePath.split("\\")[-1]
-                    results = check_patterns(
-                        filePath,
-                        filename,
-                        "",
-                        "",
-                        config,
-                        smbClient,
-                        ""
-                    )
-                    fileLib_results.append(DataLibResult(dataLibName,f"\\\\{smbClient.address}\\dataLib\\{dataLibName}",results))
-
-    report.save_results_to_json(fileLib_results, f"SLAP_results_secured-datalibs_{smbClient.address}.json")    

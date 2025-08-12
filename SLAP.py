@@ -8,6 +8,7 @@ from impacket.examples.utils import parse_target
 
 from util.logging import logger
 import util.SLAPFunctions as SLAPFunctions
+import util.SLAPUnsecureDatalibs as SLAPUnsecureDatalibs
 import util.config as configHelper
 from os import path as os_path
 
@@ -166,7 +167,7 @@ def main():
             SLAPFunctions.download_package(options.download, options, config)
             logger.error(f"Check folder {options.download} in current working directory.")
         elif options.unsecureDatalibs:
-            SLAPFunctions.parse_fileLib(options, config)
+            SLAPUnsecureDatalibs.unsecure_datalibs(options, config)
         else:
             SLAPFunctions.parse_SCCM(options, config)
             if os_path.exists(options.outputfile):
