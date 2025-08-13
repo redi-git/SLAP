@@ -260,12 +260,12 @@ def check_patterns(filePath, filename, timemodified, filesize, config, smbClient
     return results_list
 
 def check_filename_key(
-    filename, filepath, timemodified, filesize, config, smbClient, hash
+    filename, filepath, config, smbClient
 ):
     return hash
 
 @cached(custom_key_maker=check_filename_key, ttl=120, max_size=1000)
-def check_filename(filename, filepath, timemodified, filesize, config, smbClient, hash):
+def check_filename(filename, filepath, config, smbClient):
     """
     checks if filename should be reported according to config
     filename = name of the file to include in the result
@@ -275,6 +275,7 @@ def check_filename(filename, filepath, timemodified, filesize, config, smbClient
 
     try:
         if filename in config["filenames"]["reportDict"]:
+            hash, timemodified, filesize = get_fileinfo(filepath, config, smbClient)
             description = config["filenames"]["reportDict"][filename]
             dataFilePath = f"\\\\{smbClient.target_ip}\\SCCMContentLib$\\FileLib\\{hash[:4]}\\{hash}"
             file_content = smbClient.read_file(dataFilePath)
@@ -370,30 +371,18 @@ def parse_dataLib(dataLib, pkgLib, config, smbClient):
         dataLib_results = []
         for filePath in fileList:
             fileName = filePath.split("\\")[-1]
-            hash, timemodified, filesize = get_fileinfo(filePath, config, smbClient)
-
+            
             results = check_filename(
-                fileName, filePath, timemodified, str(filesize), config, smbClient, hash
+                fileName, filePath, config, smbClient
             )
             if len(results) > 0:
                 dataLib_results.extend(results)
 
-            if "filesize" not in config:
-                extension = filePath.split("\\")[-1].split(".")[-2]
-                if filePath.count(".") >= 3 and not ConfigHelper.is_extension_whitelisted(
-                    extension, config["extensions"]
-                ):  # filename allways ends with .INI
-                    # files with no extension are atm always skipped
-                    logger.debug(f"{fileName} skipped due to extension")
-                    continue
-            else:
-                if int(filesize) > 1000:
-                    # logger.info(f"{pkgLib} {fileName} skipped {filesize}>1000. {dataFilePath}")
-                    continue
-                else:
-                    logger.info(
-                        f"{pkgLib} checking {fileName} {filesize}<1000. {filePath}"
-                    )
+            extension = filePath.split("\\")[-1].split(".")[-2]
+            if filePath.count(".") >= 3 and not ConfigHelper.is_extension_whitelisted(extension, config["extensions"]):  # filename allways ends with .INI
+                # files with no extension are atm always skipped
+                logger.debug(f"{fileName} skipped due to extension")
+                continue
 
             isIgnored, skipPackage = ConfigHelper.is_filename_ignored(fileName, config)
             if skipPackage:
@@ -402,6 +391,10 @@ def parse_dataLib(dataLib, pkgLib, config, smbClient):
             if isIgnored:
                 logger.debug(f"ignored file {fileName}")
                 continue
+            
+            hash, timemodified, filesize = get_fileinfo(filePath, config, smbClient)
+
+
 
             dataFilePath = f"\\\\{smbClient.target_ip}\\SCCMContentLib$\\FileLib\\{hash[:4]}\\{hash}"
             if hash == "":
