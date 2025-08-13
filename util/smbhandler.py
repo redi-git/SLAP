@@ -177,10 +177,10 @@ class SMBHandler:
                     output = data.decode(chardet_result["encoding"])
                 else:
                     output = str(data)
-                    #logger.debug(f"Done reading {fullPath}")
+                    logger.debug(f"Done reading {fullPath}")
 
                     return output
-                #logger.debug(f"Done reading {fullPath}")
+                logger.debug(f"Done reading {fullPath}")
                 return output
             except nmb.NetBIOSTimeout as e:
                 logger.info(
@@ -259,7 +259,7 @@ class SMBHandler:
         depthLimit = stop when this depth is reached starting from the basepath
         """
 
-        if depth == 1:
+        if depth == 0:
             logger.debug(f"listing {path}")
             depth += 1
         ls = []
